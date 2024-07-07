@@ -10,7 +10,6 @@
 ~/D/xxxxxxx-yyyyyy-infra ❯❯❯ aws --version                                                            ✘ 252 deployment/production ✚ ✱
 aws-cli/2.10.1 Python/3.9.11 Darwin/22.3.0 exe/x86_64 prompt/off
 ```
-
 ### Phase 0 in README 
 
 | FIELD_NAME                | FIELD_VALUE             |
