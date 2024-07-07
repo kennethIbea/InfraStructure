@@ -1,0 +1,65 @@
+# @format
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Phase 3 - Storage Layer - Create iam groups and a deployment user for the project
+
+Parameters:
+  ProjectName:
+    Type: String
+  AppEnv:
+    Type: String
+Resources:
+  DBSubnetGroup:
+    Type: "AWS::DocDB::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: "Subnet for DocumentDB"
+      DBSubnetGroupName: !Join ["-", [!Ref "ProjectName", "docdb-DBSubnetGroup"]]
+      SubnetIds:
+        - Fn::ImportValue: !Join [":", [!Ref "ProjectName", "PublicSubnetOne"]]
+        - Fn::ImportValue: !Join [":", [!Ref "ProjectName", "PublicSubnetTwo"]]
+  DBCluster:
+    Type: "AWS::DocDB::DBCluster"
+    DeletionPolicy: Delete
+    Properties:
+      DBClusterIdentifier:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref "ProjectName",
+            "::DB_CLUSTER_NAME}}-3",
+          ],
+        ]
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MasterUsername:
+        !Join [
+          "",
+          ["{{resolve:secretsmanager:", !Ref "ProjectName", "::DB_USER}}"],
+        ]
+      MasterUserPassword:
+        !Join [
+          "",
+          ["{{resolve:secretsmanager:", !Ref "ProjectName", "::DB_PASSWORD}}"],
+        ]
+      EngineVersion: 4.0.0
+      Port: 27017
+      VpcSecurityGroupIds:
+        - Fn::ImportValue: !Join [":", [!Ref "ProjectName", "DatabaseSG"]]
+    DependsOn: DBSubnetGroup
+
+  DBInstance:
+    Type: "AWS::DocDB::DBInstance"
+    Properties:
+      DBClusterIdentifier: !Ref DBCluster
+      DBInstanceIdentifier: "lifebuild-baseball-game-db-instance-3"
+      DBInstanceClass: "db.t3.medium"
+    DependsOn: DBCluster
+
+Outputs:
+  ClusterId:
+    Value: !Ref DBCluster
+  ClusterEndpoint:
+    Value: !GetAtt DBCluster.Endpoint
+  ClusterPort:
+    Value: !GetAtt DBCluster.Port
+    Value: "4.0.0"

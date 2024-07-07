@@ -1,0 +1,60 @@
+# @format
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Phase 2 - Computer Layer - Create the app SSL certificates
+
+Parameters:
+  ProjectName:
+    Type: String
+  ServerDomainName:
+    Type: String
+  ClientDomainName:
+    Type: String
+  GameResultServerDomainName:
+    Type: String
+
+Resources:
+  ServerRoute53RecordForELB:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerDNSName"]]
+        HostedZoneId:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerHostedZoneId"]]
+      HostedZoneId:
+        Fn::ImportValue: !Join [":", [!Ref "ProjectName", "HostedZoneId"]]
+      Name: !Ref "ServerDomainName"
+      Type: A
+
+  ClientRoute53RecordForELB:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerDNSName"]]
+        HostedZoneId:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerHostedZoneId"]]
+      HostedZoneId:
+        Fn::ImportValue: !Join [":", [!Ref "ProjectName", "HostedZoneId"]]
+      Name: !Ref "ClientDomainName"
+      Type: A
+
+  GameResultServerRoute53RecordForELB:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerDNSName"]]
+        HostedZoneId:
+          Fn::ImportValue:
+            !Join [":", [!Ref "ProjectName", "LoadBalancerHostedZoneId"]]
+      HostedZoneId:
+        Fn::ImportValue: !Join [":", [!Ref "ProjectName", "HostedZoneId"]]
+      Name: !Ref "GameResultServerDomainName"
+      Type: A

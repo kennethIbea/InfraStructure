@@ -1,0 +1,140 @@
+# @format
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Phase 4 - Computing Layer - Create the task definitions for the ecs Cluster
+
+Parameters:
+  ProjectName:
+    Type: String
+
+Resources:
+  ClientTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: !Join ["-", [!Ref "ProjectName", "Client"]]
+          Cpu: 256
+          Memory: 512
+          Image:
+            Fn::Join: [":", [!ImportValue ClientRepositoryURI, "latest"]]
+          HealthCheck:
+            Command: ["CMD-SHELL", "curl -f -k https://localhost:443 || exit 1"]
+            Interval: 30
+            Retries: 8
+            Timeout: 10
+            StartPeriod: 30
+          PortMappings:
+            - ContainerPort: 443
+              HostPort: 443
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: true
+              awslogs-group: ClientLogs
+              awslogs-region: ap-northeast-1
+              awslogs-stream-prefix: ClientLogs
+      Cpu: 256
+      ExecutionRoleArn: !ImportValue "ClientExecutionRoleArn"
+      TaskRoleArn: !ImportValue "ClientTaskRoleArn"
+      Memory: 512
+      NetworkMode: awsvpc
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref "ProjectName", "client"]]
+
+  ServerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ExecutionRoleArn: !ImportValue "ServerExecutionRoleArn"
+      TaskRoleArn: !ImportValue "ServerTaskRoleArn"
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: !Join ["-", [!Ref "ProjectName", "Server"]]
+          Cpu: 256
+          Memory: 512
+          Image:
+            Fn::Join: [":", [!ImportValue ServerRepositoryURI, "latest"]]
+          HealthCheck:
+            Command:
+              [
+                "CMD-SHELL",
+                "curl -f -k https://localhost:8000/health-check || exit 1",
+              ]
+              # "curl -f http://localhost:8080/health-check || exit 1",
+            Interval: 10
+            Retries: 3
+            Timeout: 10
+            StartPeriod: 5
+          PortMappings:
+            - ContainerPort: 8000
+              HostPort: 8000
+            - ContainerPort: 8080
+              HostPort: 8080
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: true
+              awslogs-group: ServerLogs
+              awslogs-region: ap-northeast-1
+              awslogs-stream-prefix: ServerLogs
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref "ProjectName", "server"]]
+
+  GameResultServerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ExecutionRoleArn: !ImportValue "ServerExecutionRoleArn"
+      TaskRoleArn: !ImportValue "ServerTaskRoleArn"
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: !Join ["-", [!Ref "ProjectName", "Game-Result-Server"]]
+          Cpu: 256
+          Memory: 512
+          Image:
+            Fn::Join:
+              [":", [!ImportValue GameResultServerRepositoryURI, "latest"]]
+          HealthCheck:
+            Command:
+              [
+                "CMD-SHELL",
+                "curl -f -k https://localhost:8080/health-check || exit 1",
+              ]
+            Interval: 10
+            Retries: 3
+            Timeout: 10
+            StartPeriod: 5
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 8080
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: true
+              awslogs-group: GameResultServerLogs
+              awslogs-region: ap-northeast-1
+              awslogs-stream-prefix: GameResultServerLogs
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [!Ref "ProjectName", "game-result-server"]]
+
+Outputs:
+  ServerTaskDefinition:
+    Description: Task definition for the server
+    Value: !Ref "ServerTaskDefinition"
+    Export:
+      Name: ServerTaskDefinitionArn
+  ClientTaskDefinition:
+    Description: Task definition for the client
+    Value: !Ref "ClientTaskDefinition"
+    Export:
+      Name: ClientTaskDefinitionArn
+  GameResultServerTaskDefinition:
+    Description: Task definition for the server
+    Value: !Ref "GameResultServerTaskDefinition"
+    Export:
+      Name: GameResultServerTaskDefinitionArn
