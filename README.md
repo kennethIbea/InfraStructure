@@ -1,11 +1,4 @@
-# LifeBuild Baseball Game Project Infra in Development Environment
-
-## Environments
-
-| Environment | Admin Email                                    | URL                               |
-| ----------- | ---------------------------------------------- | --------------------------------- |
-| production  | admin.p_client_lifebuild@viven.inc             | https://www.our-stars.com         |
-| development | admin.development.p_client_lifebuild@viven.inc | https://development.our-stars.com |
+# Baseball Game Project Infra in Development Environment
 
 ## Phase 0
 - Notion
@@ -58,9 +51,6 @@ sh automation/run.sh 1
 
 ## Phase 2 - Network Layer
 
-- [Commit 5](https://github.com/viven-inc/belebel-ec-infra/commit/774d8e66086cbb0474047b71396b70ae38036481)
-- [Commit 6](https://github.com/viven-inc/belebel-ec-infra/commit/52f02873c5c98ed0bfae25529165ff875e495f20)
-
 - Run 
 ```
 sh automation/run.sh 2
@@ -101,14 +91,4 @@ sh automation/run.sh 3
 - Connect
 - Getting Started Guide  |Enabling/Disabling TLS  |Connecting programmatically 
 - Download the Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your clusterCopy
-```
-wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-```
-- Connect to this cluster with the mongo shellCopy
-```
-mongo --ssl --host dm6ctzfuperuhrp97ch3.cluster-ckcz2fd1qsij.ap-northeast-1.docdb.amazonaws.com:27017 --sslCAFile rds-combined-ca-bundle.pem --username JM7EcRiQ93MVD8UXXHiU --password <insertYourPassword>
-```
-- Connect to this cluster with an applicationCopy
-```
-mongodb://JM7EcRiQ93MVD8UXXHiU:<insertYourPassword>@dm6ctzfuperuhrp97ch3.cluster-ckcz2fd1qsij.ap-northeast-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
-```
+
